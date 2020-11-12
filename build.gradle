@@ -1,0 +1,36 @@
+
+group = 'com.happy3w'
+version = '0.0.1'
+ext {
+	artifactId = "persistence-es"
+
+	upload = 'enable'
+	description = "A helpfull tools to access elasticsearch."
+	url = 'https://github.com/boroborome/persistence-es'
+	developerConnection = 'scm:git@github.com:boroborome/persistence-es.git'
+}
+
+apply plugin: 'java-library'
+
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+dependencies {
+	compileOnly 'org.projectlombok:lombok:1.18.2'
+	api 'com.happy3w:persistence-core:0.0.2'
+	implementation 'org.slf4j:slf4j-api:1.7.25'
+
+	annotationProcessor 'org.projectlombok:lombok:1.18.2'
+
+	testImplementation 'junit:junit:4.12'
+	testImplementation 'com.alibaba:fastjson:1.2.29'
+
+	testCompileOnly 'org.projectlombok:lombok:1.18.2'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.2'
+}
+
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
