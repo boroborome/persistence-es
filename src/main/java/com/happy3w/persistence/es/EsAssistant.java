@@ -46,7 +46,7 @@ public class EsAssistant implements IDbAssistant {
 
     @Getter
     @Setter
-    private IEsIndexAssistant indexNameGetter = new DefaultEsIndexAssistant();
+    private IEsIndexAssistant indexAssistant = new DefaultEsIndexAssistant();
 
     private Map<Class, FieldAccessor> idAccessorMap = new HashMap<>();
 
@@ -108,14 +108,14 @@ public class EsAssistant implements IDbAssistant {
     }
 
     public <T> ObjContext<T> createObjContext(Class<T> dataType) {
-        String indexName = indexNameGetter.getIndexName(dataType);
+        String indexName = indexAssistant.getIndexName(dataType);
         String type = dataType.getSimpleName().toLowerCase();
         return new ObjContext<>(dataType, indexName, type);
     }
 
     @Override
     public <T> Stream<T> queryStream(Class<T> dataType, List<IFilter> filters, QueryOptions options) {
-        SearchRequest request = new SearchRequest(indexNameGetter.getIndexName(dataType))
+        SearchRequest request = new SearchRequest(indexAssistant.getIndexName(dataType))
                 .searchType(SearchType.DEFAULT);
         SearchSourceBuilder requestBuilder = new SearchSourceBuilder();
         filterTranslator.translate(filters, requestBuilder);
@@ -133,7 +133,7 @@ public class EsAssistant implements IDbAssistant {
     }
 
     public void flush(Class dataType) {
-        String indexName = indexNameGetter.getIndexName(dataType);
+        String indexName = indexAssistant.getIndexName(dataType);
 
         FlushRequest request = new FlushRequest(indexName)
                 .force(true);
