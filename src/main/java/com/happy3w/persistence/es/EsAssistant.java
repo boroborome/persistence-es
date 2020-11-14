@@ -5,7 +5,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.happy3w.persistence.core.assistant.IDbAssistant;
 import com.happy3w.persistence.core.assistant.QueryOptions;
 import com.happy3w.persistence.core.filter.IFilter;
-import com.happy3w.persistence.es.impl.DefaultIndexNameGetter;
+import com.happy3w.persistence.es.impl.DefaultEsIndexAssistant;
 import com.happy3w.persistence.es.translator.EsFilterTranslator;
 import com.happy3w.toolkits.iterator.EasyIterator;
 import com.happy3w.toolkits.message.MessageRecorderException;
@@ -46,7 +46,7 @@ public class EsAssistant implements IDbAssistant {
 
     @Getter
     @Setter
-    private IIndexNameGetter indexNameGetter = new DefaultIndexNameGetter();
+    private IEsIndexAssistant indexNameGetter = new DefaultEsIndexAssistant();
 
     private Map<Class, FieldAccessor> idAccessorMap = new HashMap<>();
 

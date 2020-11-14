@@ -1,8 +1,8 @@
 package com.happy3w.persistence.es.impl;
 
-import com.happy3w.persistence.es.IIndexNameGetter;
+import com.happy3w.persistence.es.IEsIndexAssistant;
 
-public class DefaultIndexNameGetter implements IIndexNameGetter {
+public class DefaultEsIndexAssistant implements IEsIndexAssistant {
 
     @Override
     public String getIndexName(Class docType) {
