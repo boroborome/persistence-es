@@ -2,18 +2,14 @@ package com.happy3w.persistence.es;
 
 import com.alibaba.fastjson.JSON;
 import com.happy3w.persistence.core.filter.impl.StringEqualFilter;
+import com.happy3w.persistence.es.model.EsConnectConfig;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
@@ -23,11 +19,7 @@ public class EsAssistantTest {
 
     @Test
     public void should_write_and_read_success() throws UnknownHostException {
-        Settings settings = Settings.builder().put("cluster.name", "docker-cluster").build();
-        TransportClient client = new PreBuiltTransportClient(settings)
-                .addTransportAddress(new TransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
-
-        EsAssistant esAssistant = new EsAssistant(client);
+        EsAssistant esAssistant = EsAssistant.from(new EsConnectConfig("127.0.0.1:9300", "docker-cluster"));
         esAssistant.saveData(new MyData("tom", "Tom", 22));
         esAssistant.saveData(new MyData("jerry", "Jerry", 20));
         esAssistant.flush(MyData.class);

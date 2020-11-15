@@ -6,6 +6,7 @@ import com.happy3w.persistence.core.assistant.IDbAssistant;
 import com.happy3w.persistence.core.assistant.QueryOptions;
 import com.happy3w.persistence.core.filter.IFilter;
 import com.happy3w.persistence.es.impl.DefaultEsIndexAssistant;
+import com.happy3w.persistence.es.model.EsConnectConfig;
 import com.happy3w.persistence.es.translator.EsFilterTranslator;
 import com.happy3w.toolkits.iterator.EasyIterator;
 import com.happy3w.toolkits.message.MessageRecorderException;
@@ -30,10 +31,14 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,6 +195,17 @@ public class EsAssistant implements IDbAssistant {
         return client.searchScroll(scrollRequest).actionGet();
     }
 
+    public static EsAssistant from(EsConnectConfig config) throws UnknownHostException {
+        Settings settings = Settings.builder()
+                .put("cluster.name", config.getClusterName())
+                .build();
+        TransportClient client = new PreBuiltTransportClient(settings);
+        for (TransportAddress addr : config.allTransportAddress()) {
+            client.addTransportAddress(addr);
+        }
+
+        return new EsAssistant(client);
+    }
 
     @Getter
     @AllArgsConstructor
