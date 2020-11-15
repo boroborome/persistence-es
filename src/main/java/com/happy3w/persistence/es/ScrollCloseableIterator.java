@@ -3,6 +3,7 @@ package com.happy3w.persistence.es;
 import com.alibaba.fastjson.JSON;
 import com.happy3w.toolkits.iterator.CloseableIterator;
 import com.happy3w.toolkits.iterator.NeedFindIterator;
+import com.happy3w.toolkits.reflect.FieldAccessor;
 import com.happy3w.toolkits.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
@@ -25,6 +26,7 @@ public class ScrollCloseableIterator<T>
     private TimeValue scrollTimeout;
 
     private Iterator<SearchHit> innerIt;
+    private FieldAccessor idAccessor;
 
     public ScrollCloseableIterator(
             SearchResponse response,
@@ -35,6 +37,7 @@ public class ScrollCloseableIterator<T>
         this.assistant = assistant;
         this.response = response;
         this.scrollTimeout = scrollTimeout == null ? TimeValue.timeValueMinutes(1L) : scrollTimeout;
+        this.idAccessor = assistant.getDataTypeInfo(dataType).getIdAccessor();
         innerIt = response.getHits().iterator();
     }
 
@@ -64,7 +67,7 @@ public class ScrollCloseableIterator<T>
     private EsDocWrapper<T> createWrapper(SearchHit hit) {
         String source = hit.getSourceAsString();
         T value = JSON.parseObject(source, dataType);
-        assistant.getIdAccessor(dataType).setValue(value, hit.getId());
+        idAccessor.setValue(value, hit.getId());
         EsDocWrapper<T> wrapper = new EsDocWrapper<>();
         wrapper.setSource(value);
         wrapper.setVersion(hit.getVersion());

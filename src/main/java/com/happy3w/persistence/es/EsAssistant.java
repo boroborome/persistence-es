@@ -10,10 +10,14 @@ import com.happy3w.persistence.es.translator.EsFilterTranslator;
 import com.happy3w.toolkits.iterator.EasyIterator;
 import com.happy3w.toolkits.message.MessageRecorderException;
 import com.happy3w.toolkits.reflect.FieldAccessor;
+import com.happy3w.toolkits.utils.MapBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.flush.FlushResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -48,14 +52,43 @@ public class EsAssistant implements IDbAssistant {
     @Setter
     private IEsIndexAssistant indexAssistant = new DefaultEsIndexAssistant();
 
-    private Map<Class, FieldAccessor> idAccessorMap = new HashMap<>();
+    // TODO: 缺少加载现有index的机制
+    // TODO: 需要配置哪些Index可以自动创建
+    private Map<Class, DataTypeInfo> dataTypeInfoMap = new HashMap<>();
 
     public EsAssistant(TransportClient client) {
         this.client = client;
     }
 
-    public FieldAccessor getIdAccessor(Class dataType) {
-        return idAccessorMap.computeIfAbsent(dataType, key -> FieldAccessor.from("id", key));
+    public void initSchema(Class dataType) {
+        getDataTypeInfo(dataType);
+    }
+
+    public DataTypeInfo getDataTypeInfo(Class dataType) {
+        return dataTypeInfoMap.computeIfAbsent(dataType,
+                type -> createDataTypeInfo(dataType));
+    }
+
+    private DataTypeInfo createDataTypeInfo(Class dataType) {
+        String indexName = indexAssistant.getIndexName(dataType);
+        String typeName = indexName;
+
+        IndicesExistsResponse indexExistResponse = client.admin().indices().exists(new IndicesExistsRequest().indices(indexName)).actionGet();
+        if (!indexExistResponse.isExists()) {
+            createIndex(indexName);
+        }
+
+        return new DataTypeInfo(dataType, indexName, typeName, FieldAccessor.from("id", dataType));
+    }
+
+    private void createIndex(String indexName) {
+        Map mapping = MapBuilder.of("dynamic_templates", JSON.parseArray("[{\"strings\":{\"match_mapping_type\": \"string\",\"mapping\": {\"type\": \"keyword\"}}}]")).build();
+//                MapBuilder.of("properties", indexAssistant.createMappingProperties(dataType)).build()
+//        ).build();
+        CreateIndexRequest createIndexRequest = new CreateIndexRequest()
+                .index(indexName)
+                .mapping(indexName, mapping);
+        client.admin().indices().create(createIndexRequest).actionGet();
     }
 
     public <T> void saveDoc(T data) {
@@ -99,18 +132,20 @@ public class EsAssistant implements IDbAssistant {
     }
 
     private <T> IndexRequest createIndexRequest(T data, ObjContext<T> context) {
+        DataTypeInfo dataTypeInfo = context.getDataTypeInfo();
         return new IndexRequest()
-                .index(context.getIndexName())
+                .index(dataTypeInfo.indexName)
                 .type(context.getType())
-                .id((String) getIdAccessor(data.getClass()).getValue(data))
+                .id((String) dataTypeInfo.idAccessor.getValue(data))
                 .source(JSON.toJSONString(data,
                         SerializerFeature.DisableCircularReferenceDetect), XContentType.JSON);
     }
 
-    public <T> ObjContext<T> createObjContext(Class<T> dataType) {
+    private <T> ObjContext<T> createObjContext(Class<T> dataType) {
+        DataTypeInfo typeInfo = getDataTypeInfo(dataType);
         String indexName = indexAssistant.getIndexName(dataType);
         String type = dataType.getSimpleName().toLowerCase();
-        return new ObjContext<>(dataType, indexName, type);
+        return new ObjContext<>(dataType, new String[]{indexName}, type, typeInfo);
     }
 
     @Override
@@ -160,7 +195,19 @@ public class EsAssistant implements IDbAssistant {
     @Builder
     private static class ObjContext<T> {
         private Class<T> dataType;
+        // current index name used
+        private String[] indexNames;
+        private String type;
+        private DataTypeInfo dataTypeInfo;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class DataTypeInfo {
+        private Class dataType;
+        // default index name
         private String indexName;
         private String type;
+        private FieldAccessor idAccessor;
     }
 }

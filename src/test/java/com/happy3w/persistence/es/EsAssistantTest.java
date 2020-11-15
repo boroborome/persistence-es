@@ -32,7 +32,7 @@ public class EsAssistantTest {
         esAssistant.saveDoc(new MyData("jerry", "Jerry", 20));
         esAssistant.flush(MyData.class);
         List<MyData> results = esAssistant.queryStream(MyData.class,
-                Arrays.asList(new StringEqualFilter("name.keyword", "Tom")),
+                Arrays.asList(new StringEqualFilter("name", "Tom")),
                 null)
                 .collect(Collectors.toList());
         Assert.assertEquals("[{\"age\":22,\"id\":\"tom\",\"name\":\"Tom\"}]",
