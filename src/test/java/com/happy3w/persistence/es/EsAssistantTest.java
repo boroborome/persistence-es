@@ -28,8 +28,8 @@ public class EsAssistantTest {
                 .addTransportAddress(new TransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
 
         EsAssistant esAssistant = new EsAssistant(client);
-        esAssistant.saveDoc(new MyData("tom", "Tom", 22));
-        esAssistant.saveDoc(new MyData("jerry", "Jerry", 20));
+        esAssistant.saveData(new MyData("tom", "Tom", 22));
+        esAssistant.saveData(new MyData("jerry", "Jerry", 20));
         esAssistant.flush(MyData.class);
         List<MyData> results = esAssistant.queryStream(MyData.class,
                 Arrays.asList(new StringEqualFilter("name", "Tom")),

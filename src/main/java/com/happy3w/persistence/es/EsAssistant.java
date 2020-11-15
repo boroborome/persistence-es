@@ -52,7 +52,6 @@ public class EsAssistant implements IDbAssistant {
     @Setter
     private IEsIndexAssistant indexAssistant = new DefaultEsIndexAssistant();
 
-    // TODO: 缺少加载现有index的机制
     // TODO: 需要配置哪些Index可以自动创建
     private Map<Class, DataTypeInfo> dataTypeInfoMap = new HashMap<>();
 
@@ -91,12 +90,14 @@ public class EsAssistant implements IDbAssistant {
         client.admin().indices().create(createIndexRequest).actionGet();
     }
 
-    public <T> void saveDoc(T data) {
+    @Override
+    public <T> void saveData(T data) {
         ObjContext<T> context = (ObjContext<T>) createObjContext(data.getClass());
         IndexRequest indexRequest = createIndexRequest(data, context);
         client.index(indexRequest).actionGet();
     }
 
+    @Override
     public <T> void saveStream(Stream<T> dataStream) {
         EasyIterator<T> it = EasyIterator.from(dataStream);
         if (it.hasNext()) {
