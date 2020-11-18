@@ -12,8 +12,6 @@ import com.happy3w.toolkits.iterator.EasyIterator;
 import com.happy3w.toolkits.message.MessageRecorderException;
 import com.happy3w.toolkits.reflect.FieldAccessor;
 import com.happy3w.toolkits.utils.MapBuilder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -140,9 +138,9 @@ public class EsAssistant implements IDbAssistant {
     private <T> IndexRequest createIndexRequest(T data, ObjContext<T> context) {
         DataTypeInfo dataTypeInfo = context.getDataTypeInfo();
         return new IndexRequest()
-                .index(dataTypeInfo.indexName)
+                .index(dataTypeInfo.getIndexName())
                 .type(context.getType())
-                .id((String) dataTypeInfo.idAccessor.getValue(data))
+                .id((String) dataTypeInfo.getIdAccessor().getValue(data))
                 .source(JSON.toJSONString(data,
                         SerializerFeature.DisableCircularReferenceDetect), XContentType.JSON);
     }
@@ -156,7 +154,9 @@ public class EsAssistant implements IDbAssistant {
 
     @Override
     public <T> Stream<T> queryStream(Class<T> dataType, List<IFilter> filters, QueryOptions options) {
-        SearchRequest request = new SearchRequest(indexAssistant.getIndexName(dataType))
+        ObjContext<T> context = createObjContext(dataType);
+
+        SearchRequest request = new SearchRequest(context.getIndexNames())
                 .searchType(SearchType.DEFAULT);
         SearchSourceBuilder requestBuilder = new SearchSourceBuilder();
         filterTranslator.translate(filters, requestBuilder);
@@ -166,7 +166,7 @@ public class EsAssistant implements IDbAssistant {
         SearchResponse response = client.search(request).actionGet();
         ScrollCloseableIterator<T> it = new ScrollCloseableIterator<>(
                 response,
-                dataType,
+                context,
                 this,
                 TimeValue.MINUS_ONE);
         return it.stream()
@@ -205,26 +205,5 @@ public class EsAssistant implements IDbAssistant {
         }
 
         return new EsAssistant(client);
-    }
-
-    @Getter
-    @AllArgsConstructor
-    @Builder
-    private static class ObjContext<T> {
-        private Class<T> dataType;
-        // current index name used
-        private String[] indexNames;
-        private String type;
-        private DataTypeInfo dataTypeInfo;
-    }
-
-    @Getter
-    @AllArgsConstructor
-    public static class DataTypeInfo {
-        private Class dataType;
-        // default index name
-        private String indexName;
-        private String type;
-        private FieldAccessor idAccessor;
     }
 }
