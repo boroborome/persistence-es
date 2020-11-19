@@ -13,4 +13,12 @@ public class ObjContext<T> {
     private String[] indexNames;
     private String type;
     private DataTypeInfo dataTypeInfo;
+
+    public String getId(T data) {
+        return (String) dataTypeInfo.getIdAccessor().getValue(data);
+    }
+
+    public void setId(T data, String id) {
+        dataTypeInfo.getIdAccessor().setValue(data, id);
+    }
 }

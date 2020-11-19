@@ -23,6 +23,7 @@ import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -94,10 +95,12 @@ public class EsAssistant implements IDbAssistant {
     }
 
     @Override
-    public <T> void saveData(T data) {
+    public <T> T saveData(T data) {
         ObjContext<T> context = (ObjContext<T>) createObjContext(data.getClass());
         IndexRequest indexRequest = createIndexRequest(data, context);
-        client.index(indexRequest).actionGet();
+        IndexResponse response = client.index(indexRequest).actionGet();
+        context.setId(data, response.getId());
+        return data;
     }
 
     @Override
