@@ -22,6 +22,8 @@ import org.elasticsearch.action.admin.indices.flush.FlushResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.ClearScrollRequest;
@@ -34,6 +36,8 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
@@ -161,8 +165,8 @@ public class EsAssistant implements IDbAssistant {
 
         SearchRequest request = new SearchRequest(context.getIndexNames())
                 .searchType(SearchType.DEFAULT);
-        SearchSourceBuilder requestBuilder = new SearchSourceBuilder();
-        filterTranslator.translate(filters, requestBuilder);
+        SearchSourceBuilder requestBuilder = new SearchSourceBuilder()
+                .postFilter(filterTranslator.translate(filters));
         request.source(requestBuilder)
                 .scroll(TimeValue.MINUS_ONE);
 
@@ -174,6 +178,27 @@ public class EsAssistant implements IDbAssistant {
                 TimeValue.MINUS_ONE);
         return it.stream()
                 .map(EsDocWrapper::getSource);
+    }
+
+    public <T> T deleteById(Class<T> dataType, String id) {
+        ObjContext<T> context = createObjContext(dataType);
+        DeleteRequest request = new DeleteRequest(context.getDataTypeInfo().getIndexName())
+                .id(id);
+        DeleteResponse response = client.delete(request).actionGet();
+        return null;
+    }
+
+    public <T> long deleteByFilter(Class<T> dataType, List<IFilter> filters) {
+        ObjContext<T> context = createObjContext(dataType);
+
+        filterTranslator.translate(filters);
+
+        BulkByScrollResponse response = DeleteByQueryAction.INSTANCE.newRequestBuilder(client)
+                .filter(filterTranslator.translate(filters))
+                .source(context.getDataTypeInfo().getIndexName())
+                .get();
+
+        return response.getDeleted();
     }
 
     public void flush(Class dataType) {

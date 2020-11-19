@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +24,7 @@ public class EsFilterTranslator {
         translatorMap.put(translator.getFilterType(), translator);
     }
 
-    public void translate(List<IFilter> filters, SearchSourceBuilder sourceBuilder) {
+    public QueryBuilder translate(List<IFilter> filters) {
         List<QueryBuilder> queryBuilders = new ArrayList<>();
         for (IFilter filter : filters) {
             IFilterTranslator translator = translatorMap.get(filter.getClass());
@@ -36,15 +35,15 @@ public class EsFilterTranslator {
         }
 
         if (queryBuilders.isEmpty()) {
-            sourceBuilder.postFilter(QueryBuilders.matchAllQuery());
+            return QueryBuilders.matchAllQuery();
         } else if (queryBuilders.size() == 1) {
-            sourceBuilder.postFilter(queryBuilders.get(0));
+            return queryBuilders.get(0);
         } else {
             BoolQueryBuilder combineBuilder = new BoolQueryBuilder();
             for (QueryBuilder queryBuilder : queryBuilders) {
                 combineBuilder.must(queryBuilder);
             }
-            sourceBuilder.postFilter(combineBuilder);
+            return combineBuilder;
         }
     }
 }
