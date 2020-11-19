@@ -36,8 +36,10 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryAction;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
@@ -178,6 +180,21 @@ public class EsAssistant implements IDbAssistant {
                 TimeValue.MINUS_ONE);
         return it.stream()
                 .map(EsDocWrapper::getSource);
+    }
+
+    public <T> T queryById(Class<T> dataType, String id) {
+        ObjContext<T> context = createObjContext(dataType);
+        SearchRequest request = new SearchRequest(context.getIndexNames())
+                .searchType(SearchType.DEFAULT)
+                .source(new SearchSourceBuilder().postFilter(
+                        QueryBuilders.idsQuery().addIds(id))
+                );
+        SearchResponse response = client.search(request).actionGet();
+        if (response.getHits().getHits().length > 0) {
+            SearchHit hit = response.getHits().getAt(0);
+            return context.parseData(hit.getSourceAsString(), hit.getId());
+        }
+        return null;
     }
 
     public <T> T deleteById(Class<T> dataType, String id) {

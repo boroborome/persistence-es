@@ -1,5 +1,6 @@
 package com.happy3w.persistence.es;
 
+import com.alibaba.fastjson.JSON;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,5 +21,13 @@ public class ObjContext<T> {
 
     public void setId(T data, String id) {
         dataTypeInfo.getIdAccessor().setValue(data, id);
+    }
+
+    public T parseData(String json, String id) {
+        T value = JSON.parseObject(json, dataType);
+        if (id != null) {
+            dataTypeInfo.getIdAccessor().setValue(value, id);
+        }
+        return value;
     }
 }

@@ -62,11 +62,8 @@ public class ScrollCloseableIterator<T>
     }
 
     private EsDocWrapper<T> createWrapper(SearchHit hit) {
-        String source = hit.getSourceAsString();
-        T value = JSON.parseObject(source, context.getDataType());
-        context.getDataTypeInfo().getIdAccessor().setValue(value, hit.getId());
         EsDocWrapper<T> wrapper = new EsDocWrapper<>();
-        wrapper.setSource(value);
+        wrapper.setSource(context.parseData(hit.getSourceAsString(), hit.getId()));
         wrapper.setVersion(hit.getVersion());
         collectFields(wrapper, hit.getFields());
         return wrapper;
