@@ -2,13 +2,7 @@ package com.happy3w.persistence.es.translator;
 
 import com.happy3w.persistence.core.filter.IFilter;
 import com.happy3w.persistence.core.filter.impl.CombineFilter;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
 
 public class CombineTranslator implements IFilterTranslator<CombineFilter> {
     @Override
@@ -17,28 +11,20 @@ public class CombineTranslator implements IFilterTranslator<CombineFilter> {
     }
 
     @Override
-    public void translate(CombineFilter filter, List<QueryBuilder> queryBuilders, ITranslateAssistant translateAssistant) {
-        List<QueryBuilder> subBuilders = new ArrayList<>();
+    public QueryBuilder translatePositive(CombineFilter filter, ITranslateAssistant translateAssistant) {
+        QueryBuilderCombiner combiner = createCombinerByOps(filter.getOperator());
         for (IFilter innerFilter : filter.getInnerFilters()) {
-            translateAssistant.translate(innerFilter, subBuilders);
+            QueryBuilder innerBuilder = translateAssistant.translatePositive(innerFilter);
+            combiner.append(innerBuilder, innerFilter.isPositive());
         }
-        if (subBuilders.size() == 1) {
-            queryBuilders.add(subBuilders.get(0));
-        } else if (subBuilders.size() > 1) {
-            BoolQueryBuilder combineBuilder = QueryBuilders.boolQuery();
-            Function<QueryBuilder, BoolQueryBuilder> consumer = getConsumerByOps(filter.getOperator(), combineBuilder);
-            for (QueryBuilder builder : subBuilders) {
-                consumer.apply(builder);
-            }
-            queryBuilders.add(combineBuilder);
-        }
+        return combiner.getCombinedResult();
     }
 
-    private Function<QueryBuilder, BoolQueryBuilder> getConsumerByOps(String operator, BoolQueryBuilder combineBuilder) {
+    private QueryBuilderCombiner createCombinerByOps(String operator) {
         if (CombineFilter.Ops.And.equals(operator)) {
-            return combineBuilder::must;
+            return QueryBuilderCombiner.andCombiner();
         } else if (CombineFilter.Ops.Or.equals(operator)) {
-            return combineBuilder::should;
+            return QueryBuilderCombiner.orCombiner();
         } else {
             throw new UnsupportedOperationException("Operator '" + operator + "' is not supported in CombineTranslator.");
         }

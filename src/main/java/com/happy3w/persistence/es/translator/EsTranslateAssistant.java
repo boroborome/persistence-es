@@ -2,11 +2,9 @@ package com.happy3w.persistence.es.translator;
 
 import com.happy3w.persistence.core.filter.IFilter;
 import lombok.Getter;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,34 +27,21 @@ public class EsTranslateAssistant implements ITranslateAssistant {
     }
 
     public QueryBuilder translate(List<IFilter> filters) {
-        List<QueryBuilder> queryBuilders = new ArrayList<>();
+        QueryBuilderCombiner combiner = QueryBuilderCombiner.andCombiner();
         for (IFilter filter : filters) {
-            IFilterTranslator translator = translatorMap.get(filter.getClass());
-            if (translator == null) {
-                throw new UnsupportedOperationException("Unsupported filter type:" + filter.getClass());
-            }
-            translator.translate(filter, queryBuilders, this);
+            QueryBuilder builder = translatePositive(filter);
+            combiner.append(builder, filter.isPositive());
         }
-
-        if (queryBuilders.isEmpty()) {
-            return QueryBuilders.matchAllQuery();
-        } else if (queryBuilders.size() == 1) {
-            return queryBuilders.get(0);
-        } else {
-            BoolQueryBuilder combineBuilder = new BoolQueryBuilder();
-            for (QueryBuilder queryBuilder : queryBuilders) {
-                combineBuilder.must(queryBuilder);
-            }
-            return combineBuilder;
-        }
+        QueryBuilder finalBuilder = combiner.getCombinedResult();
+        return finalBuilder == null ? QueryBuilders.matchAllQuery() : finalBuilder;
     }
 
     @Override
-    public void translate(IFilter filter, List<QueryBuilder> queryBuilders) {
+    public QueryBuilder translatePositive(IFilter filter) {
         IFilterTranslator translator = translatorMap.get(filter.getClass());
         if (translator == null) {
             throw new UnsupportedOperationException("Unsupported filter type:" + filter.getClass());
         }
-        translator.translate(filter, queryBuilders, this);
+        return translator.translatePositive(filter, this);
     }
 }

@@ -4,8 +4,6 @@ import com.happy3w.persistence.core.filter.impl.StringEqualFilter;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
-import java.util.List;
-
 public class StringEqualTranslator implements IFilterTranslator<StringEqualFilter> {
     @Override
     public Class<StringEqualFilter> getFilterType() {
@@ -13,7 +11,7 @@ public class StringEqualTranslator implements IFilterTranslator<StringEqualFilte
     }
 
     @Override
-    public void translate(StringEqualFilter filter, List<QueryBuilder> queryBuilders, ITranslateAssistant translateAssistant) {
-        queryBuilders.add(QueryBuilders.termQuery(filter.getField(), filter.getRef()));
+    public QueryBuilder translatePositive(StringEqualFilter filter, ITranslateAssistant translateAssistant) {
+        return QueryBuilders.termQuery(filter.getField(), filter.getRef());
     }
 }
