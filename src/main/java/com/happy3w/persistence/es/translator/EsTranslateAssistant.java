@@ -35,7 +35,7 @@ public class EsTranslateAssistant implements ITranslateAssistant {
             if (translator == null) {
                 throw new UnsupportedOperationException("Unsupported filter type:" + filter.getClass());
             }
-            translator.translate(filter, queryBuilders);
+            translator.translate(filter, queryBuilders, this);
         }
 
         if (queryBuilders.isEmpty()) {

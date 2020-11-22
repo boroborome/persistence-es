@@ -13,7 +13,7 @@ public class StringInTranslator implements IFilterTranslator<StringInFilter> {
     }
 
     @Override
-    public void translate(StringInFilter filter, List<QueryBuilder> queryBuilders) {
+    public void translate(StringInFilter filter, List<QueryBuilder> queryBuilders, ITranslateAssistant translateAssistant) {
         queryBuilders.add(QueryBuilders.termsQuery(filter.getField(), filter.getRefs()));
     }
 }

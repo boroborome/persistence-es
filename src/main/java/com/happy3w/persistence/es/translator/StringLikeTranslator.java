@@ -13,7 +13,7 @@ public class StringLikeTranslator implements IFilterTranslator<StringLikeFilter>
     }
 
     @Override
-    public void translate(StringLikeFilter filter, List<QueryBuilder> queryBuilders) {
+    public void translate(StringLikeFilter filter, List<QueryBuilder> queryBuilders, ITranslateAssistant translateAssistant) {
         queryBuilders.add(QueryBuilders.wildcardQuery(filter.getField(), filter.getRef()));
     }
 }

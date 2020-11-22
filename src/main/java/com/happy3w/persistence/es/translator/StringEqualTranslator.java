@@ -13,7 +13,7 @@ public class StringEqualTranslator implements IFilterTranslator<StringEqualFilte
     }
 
     @Override
-    public void translate(StringEqualFilter filter, List<QueryBuilder> queryBuilders) {
+    public void translate(StringEqualFilter filter, List<QueryBuilder> queryBuilders, ITranslateAssistant translateAssistant) {
         queryBuilders.add(QueryBuilders.termQuery(filter.getField(), filter.getRef()));
     }
 }

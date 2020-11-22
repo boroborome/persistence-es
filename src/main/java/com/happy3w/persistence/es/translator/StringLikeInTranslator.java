@@ -17,7 +17,7 @@ public class StringLikeInTranslator implements IFilterTranslator<StringLikeInFil
     }
 
     @Override
-    public void translate(StringLikeInFilter filter, List<QueryBuilder> queryBuilders) {
+    public void translate(StringLikeInFilter filter, List<QueryBuilder> queryBuilders, ITranslateAssistant translateAssistant) {
         List<WildcardQueryBuilder> builders = new ArrayList<>();
         for (String likeItem : filter.getRefs()) {
             if (StringUtils.hasText(likeItem)) {
