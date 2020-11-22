@@ -16,6 +16,9 @@ public class EsFilterTranslator {
     public static final EsFilterTranslator INSTANCE = new EsFilterTranslator();
     static {
         INSTANCE.regist(new StringEqualTranslator());
+        INSTANCE.regist(new StringInTranslator());
+        INSTANCE.regist(new StringLikeTranslator());
+        INSTANCE.regist(new StringLikeInTranslator());
     }
 
     private Map<Class<? extends IFilter>, IFilterTranslator> translatorMap = new HashMap<>();
