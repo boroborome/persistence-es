@@ -6,5 +6,5 @@ import org.elasticsearch.index.query.QueryBuilder;
 import java.util.List;
 
 public interface ITranslateAssistant {
-    QueryBuilder translate(List<IFilter> filters);
+    void translate(IFilter filter, List<QueryBuilder> queryBuilders);
 }

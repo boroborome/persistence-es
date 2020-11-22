@@ -19,6 +19,7 @@ public class EsTranslateAssistant implements ITranslateAssistant {
         INSTANCE.regist(new StringInTranslator());
         INSTANCE.regist(new StringLikeTranslator());
         INSTANCE.regist(new StringLikeInTranslator());
+        INSTANCE.regist(new CombineTranslator());
     }
 
     private Map<Class<? extends IFilter>, IFilterTranslator> translatorMap = new HashMap<>();
@@ -27,7 +28,6 @@ public class EsTranslateAssistant implements ITranslateAssistant {
         translatorMap.put(translator.getFilterType(), translator);
     }
 
-    @Override
     public QueryBuilder translate(List<IFilter> filters) {
         List<QueryBuilder> queryBuilders = new ArrayList<>();
         for (IFilter filter : filters) {
@@ -49,5 +49,14 @@ public class EsTranslateAssistant implements ITranslateAssistant {
             }
             return combineBuilder;
         }
+    }
+
+    @Override
+    public void translate(IFilter filter, List<QueryBuilder> queryBuilders) {
+        IFilterTranslator translator = translatorMap.get(filter.getClass());
+        if (translator == null) {
+            throw new UnsupportedOperationException("Unsupported filter type:" + filter.getClass());
+        }
+        translator.translate(filter, queryBuilders, this);
     }
 }
