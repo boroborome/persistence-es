@@ -28,8 +28,9 @@ public class QueryBuilderCombiner {
             }
         } else {
             if (!(innerBuilder instanceof BoolQueryBuilder)) {
-                innerBuilder = new BoolQueryBuilder()
-                        .must(innerBuilder);
+                BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+                positiveAppend.accept(innerBuilder, boolQueryBuilder);
+                innerBuilder = boolQueryBuilder;
             }
             BoolQueryBuilder boolBuilder = (BoolQueryBuilder) innerBuilder;
             BiConsumer<QueryBuilder, BoolQueryBuilder> appender = positive ? positiveAppend : negativeAppend;
