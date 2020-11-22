@@ -7,7 +7,7 @@ import com.happy3w.persistence.core.assistant.QueryOptions;
 import com.happy3w.persistence.core.filter.IFilter;
 import com.happy3w.persistence.es.impl.DefaultEsIndexAssistant;
 import com.happy3w.persistence.es.model.EsConnectConfig;
-import com.happy3w.persistence.es.translator.EsFilterTranslator;
+import com.happy3w.persistence.es.translator.EsTranslateAssistant;
 import com.happy3w.toolkits.iterator.EasyIterator;
 import com.happy3w.toolkits.message.MessageRecorderException;
 import com.happy3w.toolkits.reflect.FieldAccessor;
@@ -56,7 +56,7 @@ public class EsAssistant implements IDbAssistant {
 
     @Getter
     @Setter
-    private EsFilterTranslator filterTranslator = EsFilterTranslator.INSTANCE;
+    private EsTranslateAssistant filterTranslator = EsTranslateAssistant.INSTANCE;
 
     @Getter
     @Setter

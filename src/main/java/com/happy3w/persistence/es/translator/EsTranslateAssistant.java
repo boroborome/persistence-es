@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-public class EsFilterTranslator {
-    public static final EsFilterTranslator INSTANCE = new EsFilterTranslator();
+public class EsTranslateAssistant {
+    public static final EsTranslateAssistant INSTANCE = new EsTranslateAssistant();
     static {
         INSTANCE.regist(new StringEqualTranslator());
         INSTANCE.regist(new StringInTranslator());
