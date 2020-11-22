@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-public class EsTranslateAssistant {
+public class EsTranslateAssistant implements ITranslateAssistant {
     public static final EsTranslateAssistant INSTANCE = new EsTranslateAssistant();
     static {
         INSTANCE.regist(new StringEqualTranslator());
@@ -27,6 +27,7 @@ public class EsTranslateAssistant {
         translatorMap.put(translator.getFilterType(), translator);
     }
 
+    @Override
     public QueryBuilder translate(List<IFilter> filters) {
         List<QueryBuilder> queryBuilders = new ArrayList<>();
         for (IFilter filter : filters) {
