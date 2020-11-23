@@ -168,7 +168,8 @@ public class EsAssistant implements IDbAssistant {
         SearchRequest request = new SearchRequest(context.getIndexNames())
                 .searchType(SearchType.DEFAULT);
         SearchSourceBuilder requestBuilder = new SearchSourceBuilder()
-                .postFilter(filterTranslator.translate(filters));
+                .postFilter(filterTranslator.translate(filters))
+                .size(options.getPageSize() > 0 ? options.getPageSize() : 1000);
         request.source(requestBuilder)
                 .scroll(TimeValue.MINUS_ONE);
 
@@ -178,7 +179,8 @@ public class EsAssistant implements IDbAssistant {
                 context,
                 this,
                 TimeValue.MINUS_ONE);
-        return it.stream()
+        return it.limited(options.getMaxSize())
+                .stream()
                 .map(EsDocWrapper::getSource);
     }
 
