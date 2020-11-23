@@ -21,7 +21,8 @@ repositories {
 
 dependencies {
 	compileOnly 'org.projectlombok:lombok:1.18.2'
-	api 'com.happy3w:persistence-core:0.0.3'
+//	api 'com.happy3w:persistence-core:0.0.3'
+	api project(":persistence-core")
 
 	api 'org.elasticsearch.client:transport:6.8.13'
 	implementation 'org.slf4j:slf4j-api:1.7.25'

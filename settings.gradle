@@ -1,1 +1,3 @@
 rootProject.name = 'persistence-es'
+//include ":persistence-core"
+//project(":persistence-core").projectDir = file("../persistence-core")
