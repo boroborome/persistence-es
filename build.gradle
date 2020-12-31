@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-	compileOnly 'org.projectlombok:lombok:1.18.2'
+	compileOnly 'org.projectlombok:lombok:1.18.12'
 //	api 'com.happy3w:persistence-core:0.0.3'
 	api project(":persistence-core")
 
@@ -28,11 +28,11 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api:1.7.25'
 	implementation 'com.alibaba:fastjson:1.2.29'
 
-	annotationProcessor 'org.projectlombok:lombok:1.18.2'
+	annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
 	testImplementation 'junit:junit:4.12'
 	testCompileOnly 'org.projectlombok:lombok:1.18.2'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.2'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
