@@ -9,6 +9,7 @@ import com.happy3w.persistence.es.impl.DefaultEsIndexAssistant;
 import com.happy3w.persistence.es.model.EsConnectConfig;
 import com.happy3w.persistence.es.translator.EsTranslateAssistant;
 import com.happy3w.toolkits.iterator.EasyIterator;
+import com.happy3w.toolkits.iterator.IEasyIterator;
 import com.happy3w.toolkits.message.MessageRecorderException;
 import com.happy3w.toolkits.reflect.FieldAccessor;
 import com.happy3w.toolkits.utils.MapBuilder;
@@ -111,7 +112,7 @@ public class EsAssistant implements IDbAssistant {
 
     @Override
     public <T> void saveStream(Stream<T> dataStream) {
-        EasyIterator<T> it = EasyIterator.from(dataStream);
+        IEasyIterator<T> it = EasyIterator.fromStream(dataStream);
         if (it.hasNext()) {
             T firstDoc = it.next();
             ObjContext<T> context = (ObjContext<T>) createObjContext(firstDoc.getClass());
