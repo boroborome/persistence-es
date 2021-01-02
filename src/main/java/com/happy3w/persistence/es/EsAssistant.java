@@ -51,7 +51,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 
-public class EsAssistant implements IDbAssistant {
+public class EsAssistant implements IDbAssistant<String> {
     @Getter
     private TransportClient client;
 
@@ -163,7 +163,7 @@ public class EsAssistant implements IDbAssistant {
     }
 
     @Override
-    public <T> Stream<T> queryStream(Class<T> dataType, List<IFilter> filters, QueryOptions options) {
+    public <T> Stream<T> findByFilter(Class<T> dataType, List<IFilter> filters, QueryOptions options) {
         ObjContext<T> context = createObjContext(dataType);
 
         SearchRequest request = new SearchRequest(context.getIndexNames())
@@ -185,7 +185,8 @@ public class EsAssistant implements IDbAssistant {
                 .map(EsDocWrapper::getSource);
     }
 
-    public <T> T queryById(Class<T> dataType, String id) {
+    @Override
+    public <T> T findById(Class<T> dataType, String id) {
         ObjContext<T> context = createObjContext(dataType);
         SearchRequest request = new SearchRequest(context.getIndexNames())
                 .searchType(SearchType.DEFAULT)
@@ -200,6 +201,7 @@ public class EsAssistant implements IDbAssistant {
         return null;
     }
 
+    @Override
     public <T> T deleteById(Class<T> dataType, String id) {
         ObjContext<T> context = createObjContext(dataType);
         DeleteRequest request = new DeleteRequest(context.getDataTypeInfo().getIndexName())
@@ -208,7 +210,8 @@ public class EsAssistant implements IDbAssistant {
         return null;
     }
 
-    public <T> long deleteByFilter(Class<T> dataType, List<IFilter> filters) {
+    @Override
+    public <T> long deleteByFilter(Class<T> dataType, List<IFilter> filters, QueryOptions options) {
         ObjContext<T> context = createObjContext(dataType);
 
         filterTranslator.translate(filters);

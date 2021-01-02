@@ -23,7 +23,7 @@ public class EsAssistantTest {
         esAssistant.saveData(new MyData("tom", "Tom", 22));
         esAssistant.saveData(new MyData("jerry", "Jerry", 20));
         esAssistant.flush(MyData.class);
-        List<MyData> results = esAssistant.queryStream(MyData.class,
+        List<MyData> results = esAssistant.findByFilter(MyData.class,
                 Arrays.asList(new StringEqualFilter("name", "Tom")),
                 null)
                 .collect(Collectors.toList());
