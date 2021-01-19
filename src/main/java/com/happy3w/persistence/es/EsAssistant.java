@@ -52,6 +52,9 @@ import java.util.stream.Stream;
 
 
 public class EsAssistant implements IDbAssistant<String> {
+    private static final QueryOptions NullOptions = QueryOptions.builder()
+            .maxSize(-1)
+            .build();
     @Getter
     private TransportClient client;
 
@@ -164,6 +167,9 @@ public class EsAssistant implements IDbAssistant<String> {
 
     @Override
     public <T> Stream<T> findByFilter(Class<T> dataType, List<IFilter> filters, QueryOptions options) {
+        if (options == null) {
+            options = NullOptions;
+        }
         ObjContext<T> context = createObjContext(dataType);
 
         SearchRequest request = new SearchRequest(context.getIndexNames())
