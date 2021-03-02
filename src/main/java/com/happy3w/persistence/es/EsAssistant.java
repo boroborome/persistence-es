@@ -166,7 +166,7 @@ public class EsAssistant implements IDbAssistant<String> {
     }
 
     @Override
-    public <T> Stream<T> findByFilter(Class<T> dataType, List<IFilter> filters, QueryOptions options) {
+    public <T> Stream<T> findByFilter(Class<T> dataType, List<? extends IFilter> filters, QueryOptions options) {
         if (options == null) {
             options = NullOptions;
         }
@@ -217,7 +217,7 @@ public class EsAssistant implements IDbAssistant<String> {
     }
 
     @Override
-    public <T> long deleteByFilter(Class<T> dataType, List<IFilter> filters, QueryOptions options) {
+    public <T> long deleteByFilter(Class<T> dataType, List<? extends IFilter> filters, QueryOptions options) {
         ObjContext<T> context = createObjContext(dataType);
 
         filterTranslator.translate(filters);

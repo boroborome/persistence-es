@@ -26,7 +26,7 @@ public class EsTranslateAssistant implements ITranslateAssistant {
         translatorMap.put(translator.getFilterType(), translator);
     }
 
-    public QueryBuilder translate(List<IFilter> filters) {
+    public QueryBuilder translate(List<? extends IFilter> filters) {
         QueryBuilderCombiner combiner = QueryBuilderCombiner.andCombiner();
         for (IFilter filter : filters) {
             QueryBuilder builder = translatePositive(filter);
