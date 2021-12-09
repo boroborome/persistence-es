@@ -1,6 +1,6 @@
 
 group = 'com.happy3w'
-version = '0.0.1'
+version = '0.1.0'
 ext {
 	artifactId = "persistence-es"
 
@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
 	compileOnly 'org.projectlombok:lombok:1.18.12'
-	api 'com.happy3w:persistence-core:0.0.6'
+	api 'com.happy3w:persistence-core:0.1.0'
 //	api project(":persistence-core")
 
 	api 'org.elasticsearch.client:transport:6.8.13'
@@ -31,7 +31,8 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
 	testImplementation 'junit:junit:4.12'
-	testRuntimeOnly 'org.apache.logging.log4j:log4j-core:2.14.0'
+//	testRuntimeOnly 'org.apache.logging.log4j:log4j-core:2.14.0'
+	testRuntimeOnly 'org.apache.logging.log4j:log4j-to-slf4j:2.14.0'
 	testCompileOnly 'org.projectlombok:lombok:1.18.2'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }

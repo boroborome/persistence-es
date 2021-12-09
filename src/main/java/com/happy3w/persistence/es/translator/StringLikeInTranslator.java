@@ -1,7 +1,7 @@
 package com.happy3w.persistence.es.translator;
 
+import com.happy3w.java.ext.StringUtils;
 import com.happy3w.persistence.core.filter.impl.StringLikeInFilter;
-import com.happy3w.toolkits.utils.StringUtils;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 

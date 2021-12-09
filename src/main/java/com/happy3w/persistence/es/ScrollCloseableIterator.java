@@ -1,9 +1,9 @@
 package com.happy3w.persistence.es;
 
+import com.happy3w.java.ext.StringUtils;
 import com.happy3w.toolkits.iterator.CloseableIterator;
 import com.happy3w.toolkits.iterator.NeedFindIterator;
 import com.happy3w.toolkits.iterator.NullableOptional;
-import com.happy3w.toolkits.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.document.DocumentField;
